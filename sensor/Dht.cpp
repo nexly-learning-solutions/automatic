@@ -1,4 +1,3 @@
-
 #include "DHT.h"
 #include <cstdint>
 #include <cmath>
@@ -7,6 +6,12 @@
 #define TIMEOUT                                                                \
   UINT32_MAX
 
+/// <summary>
+/// Constructor for the DHT class.
+/// </summary>
+/// <param name="pin">The pin connected to the sensor.</param>
+/// <param name="type">The type of sensor (e.g., DHT11, DHT22).</param>
+/// <param name="count">Unused parameter, retained for compatibility.</param>
 DHT::DHT(uint8_t pin, uint8_t type, uint8_t count) {
   (void)count;
   _pin = pin;
@@ -19,6 +24,10 @@ DHT::DHT(uint8_t pin, uint8_t type, uint8_t count) {
       microsecondsToClockCycles(1000);
 }
 
+/// <summary>
+/// Initializes the DHT sensor.
+/// </summary>
+/// <param name="usec">The pulse width used for reading sensor data.</param>
 void DHT::begin(uint8_t usec) {
   pinMode(_pin, INPUT_PULLUP);
   _lastreadtime = millis() - MIN_INTERVAL;
@@ -27,6 +36,12 @@ void DHT::begin(uint8_t usec) {
   pullTime = usec;
 }
 
+/// <summary>
+/// Reads the temperature from the sensor in Celsius or Fahrenheit.
+/// </summary>
+/// <param name="S">If true, returns the temperature in Fahrenheit. Otherwise, in Celsius.</param>
+/// <param name="force">If true, forces a new reading, otherwise uses the previous one.</param>
+/// <returns>The temperature value.</returns>
 float DHT::readTemperature(bool S, bool force) {
   float f = NAN;
 
@@ -68,10 +83,25 @@ float DHT::readTemperature(bool S, bool force) {
   return f;
 }
 
+/// <summary>
+/// Converts Celsius to Fahrenheit.
+/// </summary>
+/// <param name="c">Temperature in Celsius.</param>
+/// <returns>Temperature in Fahrenheit.</returns>
 float DHT::convertCtoF(float c) { return c * 1.8 + 32; }
 
+/// <summary>
+/// Converts Fahrenheit to Celsius.
+/// </summary>
+/// <param name="f">Temperature in Fahrenheit.</param>
+/// <returns>Temperature in Celsius.</returns>
 float DHT::convertFtoC(float f) { return (f - 32) * 0.55555; }
 
+/// <summary>
+/// Reads the humidity from the sensor.
+/// </summary>
+/// <param name="force">If true, forces a new reading, otherwise uses the previous one.</param>
+/// <returns>The humidity value.</returns>
 float DHT::readHumidity(bool force) {
   float f = NAN;
   if (read(force)) {
@@ -90,12 +120,24 @@ float DHT::readHumidity(bool force) {
   return f;
 }
 
+/// <summary>
+/// Computes the heat index based on the current temperature and humidity.
+/// </summary>
+/// <param name="isFahrenheit">If true, computes in Fahrenheit, otherwise in Celsius.</param>
+/// <returns>The heat index value.</returns>
 float DHT::computeHeatIndex(bool isFahrenheit) {
   float hi = computeHeatIndex(readTemperature(isFahrenheit), readHumidity(),
                               isFahrenheit);
   return hi;
 }
 
+/// <summary>
+/// Computes the heat index from given temperature and humidity values.
+/// </summary>
+/// <param name="temperature">Temperature value in Celsius or Fahrenheit.</param>
+/// <param name="percentHumidity">Humidity percentage.</param>
+/// <param name="isFahrenheit">If true, assumes the temperature is in Fahrenheit.</param>
+/// <returns>The computed heat index value in the appropriate temperature unit.</returns>
 float DHT::computeHeatIndex(float temperature, float percentHumidity,
                             bool isFahrenheit) {
   float hi;
@@ -128,6 +170,11 @@ float DHT::computeHeatIndex(float temperature, float percentHumidity,
   return isFahrenheit ? hi : convertFtoC(hi);
 }
 
+/// <summary>
+/// Reads the sensor data, ensuring that the reading is valid.
+/// </summary>
+/// <param name="force">If true, forces a new reading, otherwise uses the previous one.</param>
+/// <returns>True if the reading is successful, false otherwise.</returns>
 bool DHT::read(bool force) {
   uint32_t currenttime = millis();
   if (!force && ((currenttime - _lastreadtime) < MIN_INTERVAL)) {
@@ -140,7 +187,6 @@ bool DHT::read(bool force) {
 #if defined(ESP8266)
   yield();
 #endif
-
 
   pinMode(_pin, INPUT_PULLUP);
   delay(1);
@@ -163,7 +209,6 @@ bool DHT::read(bool force) {
     pinMode(_pin, INPUT_PULLUP);
 
     delayMicroseconds(pullTime);
-
 
     InterruptLock lock;
 
@@ -208,39 +253,29 @@ bool DHT::read(bool force) {
   DEBUG_PRINT(data[3], HEX);
   DEBUG_PRINT(F(", "));
   DEBUG_PRINT(data[4], HEX);
-  DEBUG_PRINT(F(" =? "));
-  DEBUG_PRINTLN((data[0] + data[1] + data[2] + data[3]) & 0xFF, HEX);
+  DEBUG_PRINT(F("!"));
 
-  if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {
-    _lastresult = true;
-    return _lastresult;
-  } else {
-    DEBUG_PRINTLN(F("DHT checksum failure!"));
+  if ((data[0] + data[1] + data[2] + data[3]) != data[4]) {
+    DEBUG_PRINTLN(F("DHT checksum error"));
     _lastresult = false;
-    return _lastresult;
+  } else {
+    _lastresult = true;
   }
+
+  return _lastresult;
 }
 
-uint32_t DHT::expectPulse(bool level) {
-#if (F_CPU > 16000000L)
+/// <summary>
+/// Waits for the expected pulse duration.
+/// </summary>
+/// <param name="level">The expected pulse level (HIGH or LOW).</param>
+/// <returns>The duration of the pulse in clock cycles or TIMEOUT if it exceeds max cycles.</returns>
+uint32_t DHT::expectPulse(uint8_t level) {
   uint32_t count = 0;
-#else
-  uint16_t count = 0;
-#endif
-#ifdef __AVR
-  uint8_t portState = level ? _bit : 0;
-  while ((*portInputRegister(_port) & _bit) == portState) {
-    if (count++ >= _maxcycles) {
-      return TIMEOUT;
-    }
-  }
-#else
   while (digitalRead(_pin) == level) {
-    if (count++ >= _maxcycles) {
+    if (count++ > _maxcycles) {
       return TIMEOUT;
     }
   }
-#endif
-
   return count;
 }

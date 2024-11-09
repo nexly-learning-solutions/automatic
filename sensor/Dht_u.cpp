@@ -7,8 +7,15 @@ DHT_Unified::DHT_Unified(uint8_t pin, uint8_t type, uint8_t count,
     : _dht(pin, type, count), _type(type), _temp(this, tempSensorId),
       _humidity(this, humiditySensorId) {}
 
+/// <summary>
+/// Initializes the DHT sensor by calling the <see cref="DHT::begin()"/> function.
+/// </summary>
 void DHT_Unified::begin() { _dht.begin(); }
 
+/// <summary>
+/// Sets the name of the sensor based on its type.
+/// </summary>
+/// <param name="sensor">Pointer to the sensor object where the name will be set.</param>
 void DHT_Unified::setName(sensor_t *sensor) {
   switch (_type) {
   case DHT11:
@@ -30,6 +37,10 @@ void DHT_Unified::setName(sensor_t *sensor) {
   sensor->name[sizeof(sensor->name) - 1] = 0;
 }
 
+/// <summary>
+/// Sets the minimum delay between readings for the sensor based on its type.
+/// </summary>
+/// <param name="sensor">Pointer to the sensor object where the delay will be set.</param>
 void DHT_Unified::setMinDelay(sensor_t *sensor) {
   switch (_type) {
   case DHT11:
@@ -50,9 +61,19 @@ void DHT_Unified::setMinDelay(sensor_t *sensor) {
   }
 }
 
+/// <summary>
+/// Constructor for initializing the Temperature sensor object.
+/// </summary>
+/// <param name="parent">Pointer to the parent DHT_Unified object.</param>
+/// <param name="id">ID for the temperature sensor.</param>
 DHT_Unified::Temperature::Temperature(DHT_Unified *parent, int32_t id)
     : _parent(parent), _id(id) {}
 
+/// <summary>
+/// Gets a temperature reading event from the sensor.
+/// </summary>
+/// <param name="event">Pointer to the sensor event where the temperature data will be stored.</param>
+/// <returns>true if the event was successfully retrieved; otherwise, false.</returns>
 bool DHT_Unified::Temperature::getEvent(sensors_event_t *event) {
   memset(event, 0, sizeof(sensors_event_t));
   event->version = sizeof(sensors_event_t);
@@ -64,6 +85,10 @@ bool DHT_Unified::Temperature::getEvent(sensors_event_t *event) {
   return true;
 }
 
+/// <summary>
+/// Retrieves sensor metadata for the temperature sensor.
+/// </summary>
+/// <param name="sensor">Pointer to the sensor object to store the metadata.</param>
 void DHT_Unified::Temperature::getSensor(sensor_t *sensor) {
   memset(sensor, 0, sizeof(sensor_t));
   _parent->setName(sensor);
@@ -100,9 +125,19 @@ void DHT_Unified::Temperature::getSensor(sensor_t *sensor) {
   }
 }
 
+/// <summary>
+/// Constructor for initializing the Humidity sensor object.
+/// </summary>
+/// <param name="parent">Pointer to the parent DHT_Unified object.</param>
+/// <param name="id">ID for the humidity sensor.</param>
 DHT_Unified::Humidity::Humidity(DHT_Unified *parent, int32_t id)
     : _parent(parent), _id(id) {}
 
+/// <summary>
+/// Gets a humidity reading event from the sensor.
+/// </summary>
+/// <param name="event">Pointer to the sensor event where the humidity data will be stored.</param>
+/// <returns>true if the event was successfully retrieved; otherwise, false.</returns>
 bool DHT_Unified::Humidity::getEvent(sensors_event_t *event) {
   memset(event, 0, sizeof(sensors_event_t));
   event->version = sizeof(sensors_event_t);
@@ -114,6 +149,10 @@ bool DHT_Unified::Humidity::getEvent(sensors_event_t *event) {
   return true;
 }
 
+/// <summary>
+/// Retrieves sensor metadata for the humidity sensor.
+/// </summary>
+/// <param name="sensor">Pointer to the sensor object to store the metadata.</param>
 void DHT_Unified::Humidity::getSensor(sensor_t *sensor) {
   memset(sensor, 0, sizeof(sensor_t));
   _parent->setName(sensor);
