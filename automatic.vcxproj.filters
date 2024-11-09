@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sensor">
+      <UniqueIdentifier>{7ffa5096-08d9-43e4-bbe2-90b654de0ac7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{2edbae0e-2819-4a9f-8c98-c088f25d3fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serial">
+      <UniqueIdentifier>{e400aa1d-2fb1-4367-a9c1-bd4213ffee3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="timer">
+      <UniqueIdentifier>{7d601cad-e091-419b-b3fd-b0f4a232b1c8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="automatic.ino" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sensor\Dht.cpp">
+      <Filter>sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="sensor\Dht_u.cpp">
+      <Filter>sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\dht.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="serial\Serial.cpp">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="timer\Timer.cpp">
+      <Filter>timer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sensor\Dht.h">
+      <Filter>sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="sensor\Dht_u.h">
+      <Filter>sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\dht.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="serial\Serial.h">
+      <Filter>serial</Filter>
+    </ClInclude>
+    <ClInclude Include="timer\Timer.h">
+      <Filter>timer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
